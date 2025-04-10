@@ -1,53 +1,64 @@
 import torch
 import torch.nn as nn
+from torchvision import models, transforms
+from PIL import Image
 import cv2
-import numpy as np
-from torchvision import transforms
-import matplotlib.pyplot as plt
+import numpy as np  
 
-# Define the same model architecture
-class CombinedModel(nn.Module):
-    def __init__(self, base_model):
-        super(CombinedModel, self).__init__()
-        self.base_model = base_model
-        self.bbox_head = nn.Sequential(
-            nn.Linear(128, 4),  # 4 outputs for bounding box (x_min, y_min, x_max, y_max)
-            nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        features = self.base_model(x)
-        classification = features
-        bbox = self.bbox_head(features)
-        return classification, bbox
-
-# Load the trained model
+# Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-base_model = torch.hub.load('pytorch/vision:v0.10.0', 'mobilenet_v2', pretrained=False)
-base_model.classifier = nn.Sequential(
-    nn.Linear(base_model.last_channel, 128),
+
+# Define the model architecture (must match training script)
+model = models.mobilenet_v2(pretrained=False)
+model.classifier = nn.Sequential(
+    nn.Linear(model.last_channel, 128),
     nn.ReLU(),
-    nn.Dropout(0.5),
-    nn.Linear(128, 4)  # 4 classes for classification
+    nn.Dropout(0.4),
+    nn.Linear(128, 4)  # 4 screw classes
 )
-model = CombinedModel(base_model)
+
+# Load trained weights
 model.load_state_dict(torch.load("screw_cnn_fold1.pth", map_location=device))
 model.to(device)
 model.eval()
 
-# Define preprocessing transformations
+# Image preprocessing
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
+])
+
+# Load and preprocess image
+image_path = r"C:\Users\ander\OneDrive\UNI\VT2\Applied Machine Vision\Applied-Machine-Vision\dataset_path\Screwtype3\Screwtype3_266.jpg"  # <- replace with your test image
+img = Image.open(image_path).convert("RGB")
+img_tensor = transform(img).unsqueeze(0).to(device)  # Add batch dim
+
+# Inference
+with torch.no_grad():
+    output = model(img_tensor)
+    predicted_class = output.argmax(1).item()
+
+print(f"Predicted class index: {predicted_class}")
+
+# Enable cudnn benchmark for faster performance if input size is fixed
+torch.backends.cudnn.benchmark = True
+
+# Image preprocessing
 transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
 
-# Class names (ensure these match your training dataset)
+# Class labels
 class_names = ['Screwtype1', 'Screwtype2', 'Screwtype3', 'Screwtype4']
 
-# Open a connection to the webcam
-cap = cv2.VideoCapture(0)  # Use 0 for the default camera
+# Open webcam
+cap = cv2.VideoCapture(0)
 
 if not cap.isOpened():
     print("Error: Could not open webcam.")
@@ -59,33 +70,26 @@ while True:
         print("Error: Could not read frame.")
         break
 
-    # Preprocess the frame
-    input_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
-    input_tensor = transform(input_frame).unsqueeze(0).to(device)  # Add batch dimension
+    # Convert to RGB and preprocess
+    input_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    input_tensor = transform(input_frame).unsqueeze(0).to(device)
 
-    # Make predictions
+    # Inference
     with torch.no_grad():
-        classifications, bboxes = model(input_tensor)
-        _, predicted_class = torch.max(classifications, 1)
+        output = model(input_tensor)
+        _, predicted_class = torch.max(output, 1)
         predicted_label = class_names[predicted_class.item()]
-        bbox = bboxes[0].cpu().numpy()
 
-    # Scale bounding box coordinates back to the original frame size
-    h, w, _ = frame.shape
-    x_min, y_min, x_max, y_max = bbox
-    x_min, y_min, x_max, y_max = int(x_min * w), int(y_min * h), int(x_max * w), int(y_max * h)
+    # Draw prediction on frame
+    cv2.putText(frame, predicted_label, (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    # Draw the bounding box and label on the frame
-    cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-    cv2.putText(frame, predicted_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-
-    # Display the frame
+    # Show frame
     cv2.imshow("Live Screw Detection", frame)
 
-    # Break the loop if 'q' is pressed
+    # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release the webcam and close all OpenCV windows
 cap.release()
 cv2.destroyAllWindows()
