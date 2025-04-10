@@ -31,7 +31,7 @@ base_model.classifier = nn.Sequential(
     nn.Linear(128, 4)  # 4 classes for classification
 )
 model = CombinedModel(base_model)
-model.load_state_dict(torch.load("screw_detection_model.pth", map_location=device))
+model.load_state_dict(torch.load("screw_cnn_fold1.pth", map_location=device))
 model.to(device)
 model.eval()
 
