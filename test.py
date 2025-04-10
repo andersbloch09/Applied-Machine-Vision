@@ -31,7 +31,7 @@ transform = transforms.Compose([
 ])
 
 # Load and preprocess image
-image_path = r"C:\Users\ander\OneDrive\UNI\VT2\Applied Machine Vision\Applied-Machine-Vision\dataset_path\Screwtype3\Screwtype3_266.jpg"  # <- replace with your test image
+image_path = r".\dataset_path\Screwtype3\Screwtype3_266.jpg"  # <- replace with your test image
 img = Image.open(image_path).convert("RGB")
 img_tensor = transform(img).unsqueeze(0).to(device)  # Add batch dim
 
