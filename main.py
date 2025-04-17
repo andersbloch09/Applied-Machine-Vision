@@ -18,11 +18,13 @@ EPOCHS = 10
 K_FOLDS = 5
 NUM_CLASSES = 5  # Noscrew1 + 4 screw types
 
-# Transforms
+# Transforms with grayscale and lighting adjustments
 transform = transforms.Compose([
     transforms.Resize((IMG_HEIGHT, IMG_WIDTH)),
+    transforms.Grayscale(num_output_channels=3),  # Convert to grayscale (3 channels)
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Lighting adjustments
     transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406],
+    transforms.Normalize([0.485, 0.456, 0.406],  # Use mean and std for ImageNet (works well for MobileNetV2)
                          [0.229, 0.224, 0.225]),
 ])
 
@@ -68,7 +70,7 @@ for fold, (train_idx, val_idx) in enumerate(kf.split(full_dataset), 1):
 
     best_val_loss = float("inf")
     for epoch in range(1, EPOCHS + 1):
-        # — Train —
+        # — Train — 
         model.train()
         running_loss = 0.0
         running_correct = 0
