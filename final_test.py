@@ -1,18 +1,18 @@
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
-from PIL import Image
 import cv2
-import numpy as np  
+import numpy as np
+from collections import Counter
 
 # --- Configuration ---
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-WEIGHTS_PATH = "final_model.pth"  # or your final checkpoint
+WEIGHTS_PATH = "final_model.pth"
 CLASS_NAMES = ['Noscrew1', 'Screwtype1', 'Screwtype2', 'Screwtype3', 'Screwtype4']
 NUM_CLASSES = len(CLASS_NAMES)
 
-# --- Model Definition & Load ---
-model = models.mobilenet_v2(pretrained=False)
+# --- Load Model ---
+model = models.mobilenet_v2(weights=None)
 model.classifier = nn.Sequential(
     nn.Linear(model.last_channel, 128),
     nn.ReLU(),
@@ -24,55 +24,61 @@ model.to(DEVICE)
 model.eval()
 
 # --- Transforms ---
-# static image
-static_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.Grayscale(num_output_channels=3),  # Grayscale conversion
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Lighting adjustments
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225])
-])
-# webcam frames
-webcam_transform = transforms.Compose([
+transform = transforms.Compose([
     transforms.ToPILImage(),
-    transforms.Grayscale(num_output_channels=3),  # Grayscale conversion
-    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Lighting adjustments
+    transforms.Grayscale(num_output_channels=3),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
 ])
 
-# --- Live Webcam Inference ---
-torch.backends.cudnn.benchmark = True
+# --- Webcam Setup ---
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
+
+# --- Prediction State ---
+frame_buffer = []
+buffer_size = 10
+last_prediction = None
+
+print("Running classification... Press 'q' to exit.")
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    # preprocess
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    tensor = webcam_transform(rgb).unsqueeze(0).to(DEVICE)
+    tensor = transform(rgb).unsqueeze(0).to(DEVICE)
 
-    # predict
     with torch.no_grad():
         output = model(tensor)
         probs = torch.softmax(output, dim=1)
         confidence, pred = torch.max(probs, 1)
-        label = CLASS_NAMES[pred.item()]
+        pred_label = CLASS_NAMES[pred.item()]
+        frame_buffer.append(pred_label)
 
-    # overlay
-    text = f"{label} ({confidence.item()*100:.1f}%)"
+    # Keep buffer size
+    if len(frame_buffer) > buffer_size:
+        frame_buffer.pop(0)
+
+    # Classify only if stable
+    if len(frame_buffer) == buffer_size:
+        most_common, count = Counter(frame_buffer).most_common(1)[0]
+        if count > buffer_size // 2 and most_common != last_prediction:
+            last_prediction = most_common
+            print(f"Detected: {most_common} ({confidence.item() * 100:.1f}%)")
+            print(f"Precision: ~{confidence.item():.2f}, Recall: ~{confidence.item():.2f}")
+
+    # Visual display
+    text = f"{pred_label} ({confidence.item() * 100:.1f}%)"
     cv2.putText(frame, text, (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow("Screw Classifier", frame)
 
-    cv2.imshow("Live Screw Detection", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

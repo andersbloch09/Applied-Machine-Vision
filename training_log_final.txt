@@ -1,0 +1,24 @@
+2025-04-30 23:30:02 — Epoch 1/5 — Train Loss: 34.6841, Acc: 69.37%
+2025-04-30 23:30:25 — Epoch 2/5 — Train Loss: 9.2178, Acc: 92.44%
+2025-04-30 23:30:47 — Epoch 3/5 — Train Loss: 12.3195, Acc: 91.81%
+2025-04-30 23:31:09 — Epoch 4/5 — Train Loss: 4.4010, Acc: 97.37%
+2025-04-30 23:31:31 — Epoch 5/5 — Train Loss: 6.7819, Acc: 96.26%
+2025-04-30 23:31:31 — Final model saved as final_model.pth
+2025-04-30 23:33:58 — Epoch 1/5 — Train Loss: 35.3626, Acc: 71.20%
+2025-04-30 23:34:21 — Epoch 2/5 — Train Loss: 12.8610, Acc: 92.88%
+2025-04-30 23:34:44 — Epoch 3/5 — Train Loss: 7.4055, Acc: 94.34%
+2025-04-30 23:35:08 — Epoch 4/5 — Train Loss: 3.1347, Acc: 97.82%
+2025-04-30 23:35:31 — Epoch 5/5 — Train Loss: 8.9580, Acc: 94.66%
+2025-04-30 23:35:31 — Final model saved as final_model.pth
+2025-04-30 23:41:04 — Epoch 1/5 — Train Loss: 30.8102, Acc: 71.12%
+2025-04-30 23:41:27 — Epoch 2/5 — Train Loss: 13.5333, Acc: 92.15%
+2025-04-30 23:41:50 — Epoch 3/5 — Train Loss: 3.7218, Acc: 97.09%
+2025-04-30 23:42:13 — Epoch 4/5 — Train Loss: 3.4284, Acc: 97.57%
+2025-04-30 23:42:36 — Epoch 5/5 — Train Loss: 1.6005, Acc: 98.54%
+2025-04-30 23:42:36 — Final model saved as final_model.pth
+2025-04-30 23:44:48 — Epoch 1/5 — Train Loss: 32.7613, Acc: 74.03%
+2025-04-30 23:45:08 — Epoch 2/5 — Train Loss: 9.6600, Acc: 92.07%
+2025-04-30 23:45:28 — Epoch 3/5 — Train Loss: 3.3265, Acc: 97.25%
+2025-04-30 23:45:49 — Epoch 4/5 — Train Loss: 3.4232, Acc: 97.33%
+2025-04-30 23:46:10 — Epoch 5/5 — Train Loss: 2.2767, Acc: 97.98%
+2025-04-30 23:46:10 — Final model saved as final_model.pth
