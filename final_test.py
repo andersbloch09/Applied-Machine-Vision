@@ -8,11 +8,13 @@ from collections import Counter
 # --- Configuration ---
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 WEIGHTS_PATH = "final_model.pth"
-CLASS_NAMES = ['Noscrew1', 'Screwtype1', 'Screwtype2', 'Screwtype3', 'Screwtype4']
+
+# Update label names
+CLASS_NAMES = ['No screw', 'Bolt', 'Wood screw', 'Machine screw', 'Hook screw']
 NUM_CLASSES = len(CLASS_NAMES)
 
 # --- Load Model ---
-model = models.mobilenet_v2(weights=None)
+model = models.mobilenet_v2()
 model.classifier = nn.Sequential(
     nn.Linear(model.last_channel, 128),
     nn.ReLU(),
@@ -71,7 +73,6 @@ while True:
         if count > buffer_size // 2 and most_common != last_prediction:
             last_prediction = most_common
             print(f"Detected: {most_common} ({confidence.item() * 100:.1f}%)")
-            print(f"Precision: ~{confidence.item():.2f}, Recall: ~{confidence.item():.2f}")
 
     # Visual display
     text = f"{pred_label} ({confidence.item() * 100:.1f}%)"
