@@ -5,9 +5,10 @@ Welcome to the **Applied Machine Vision** repository! This project is designed t
 ---
 
 ## **Project Overview**
-This repository contains two main components:
+This repository contains three main components:
 1. **`main.py`**: The primary script used to train the final model using all available data.
 2. **`final_test.py`**: A deployment script designed to run the trained model on a Jetson device for real-time inference.
+3. **`cross_validation.py`**: A script used to evaluate the dataset using K-Fold Cross-Validation to analyze differences in the dataset.
 
 ---
 
@@ -32,6 +33,15 @@ This repository contains two main components:
   - Optimized for deployment on Jetson devices.
   - Includes real-time image capture and preprocessing.
   - Displays predictions directly on the video feed or saves them for further analysis.
+
+### **3. `cross_validation.py`**
+- **Purpose**:
+  - This script performs K-Fold Cross-Validation on the dataset to evaluate the model's performance across different splits of the data.
+  - It helps identify differences in the dataset and ensures the model generalizes well.
+- **Key Features**:
+  - Splits the dataset into training and validation sets using K-Fold Cross-Validation.
+  - Logs metrics such as accuracy, precision, recall, and confusion matrices for each fold.
+  - Useful for analyzing dataset variability and model robustness.
 
 ---
 
