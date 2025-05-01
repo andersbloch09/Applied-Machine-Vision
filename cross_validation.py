@@ -10,6 +10,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 import matplotlib.pyplot as plt
 import seaborn as sns
 import logging
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Configure logging
 logging.basicConfig(
@@ -53,10 +56,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Initialize K-Fold cross-validation
 kf = KFold(n_splits=K_FOLDS, shuffle=True, random_state=42)
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 # Loop through each fold
 for fold, (train_idx, val_idx) in enumerate(kf.split(full_dataset), 1):
     print(f"\n--- Fold {fold}/{K_FOLDS} ---")
@@ -79,10 +78,10 @@ for fold, (train_idx, val_idx) in enumerate(kf.split(full_dataset), 1):
     # Initialize MobileNetV2 model with pre-trained weights
     model = models.mobilenet_v2(weights=MobileNet_V2_Weights.DEFAULT)
     model.classifier = nn.Sequential(
-        nn.Linear(model.last_channel, 64),
+        nn.Linear(model.last_channel, 128),
         nn.ReLU(),
-        nn.Dropout(0.5),
-        nn.Linear(64, NUM_CLASSES),
+        nn.Dropout(0.4),
+        nn.Linear(128, NUM_CLASSES),
     )
     model.to(device)
 
