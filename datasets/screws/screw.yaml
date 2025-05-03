@@ -1,0 +1,9 @@
+path: datasets/screws
+train: images/train
+val: images/train  # You can reuse training data for validation for now
+
+names:
+  0: Screwtype1
+  1: Screwtype2
+  2: Screwtype3
+  3: Screwtype4
