@@ -1,4 +1,4 @@
-path: datasets/screws
+path: ./screws
 train: images/train
 val: images/train  # You can reuse training data for validation for now
 
