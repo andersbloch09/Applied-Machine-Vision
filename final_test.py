@@ -4,7 +4,7 @@ import torch
 
 def main():
     # Load the trained model
-    model = YOLO("runs/detect/train/weights/best.pt")
+    model = YOLO("runs/detect/train2/weights/best.pt")
 
     # Ensure it uses CUDA if available
     device = 'cuda' if torch.cuda.is_available() else 'cpu'

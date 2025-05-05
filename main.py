@@ -3,22 +3,23 @@ import torch
 import gc
 
 def train_yolo_model():
-    model = YOLO('yolov8s.pt')  # Try 's' or 'm' version
+    model = YOLO('yolov8s.pt')
 
     model.train(
         data='datasets/screws/screw.yaml',
-        epochs=50,
+        epochs=20,
         imgsz=640,
         batch=8,
         lr0=0.001,
         weight_decay=0.0005,
         device='cuda' if torch.cuda.is_available() else 'cpu',
-        val=False,
+        val=True,             # Enable validation during training
         patience=10,
     )
 
-    metrics = model.val()
+    metrics = model.val(save=True)
     print(f"✅ Final mAP@0.5: {metrics.box.map50:.4f}")
+    print(f"📊 mAP@[.5:.95]: {metrics.box.map:.4f}")
 
     del model
     torch.cuda.empty_cache()

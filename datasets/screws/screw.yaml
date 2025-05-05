@@ -1,6 +1,6 @@
 path: ./screws
 train: images/train
-val: images/train  # You can reuse training data for validation for now
+val: images/val  # You can reuse training data for validation for now
 
 names:
   0: Screwtype1

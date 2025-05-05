@@ -1,56 +1,84 @@
-# **Applied Machine Vision**
+# Applied Machine Vision
 
-Welcome to the **Applied Machine Vision** repository! This project is designed to provide a complete solution for a mini-project in applied machine vision, focusing on training and deploying a convolutional neural network (CNN) for screw classification.
+Welcome to the **Applied Machine Vision** repository! This repository provides a full pipeline for training, evaluating, and deploying a YOLO-based model for screw classification using computer vision techniques.
 
----
+## Project Overview
 
-## **Project Overview**
-This repository contains three main components:
-1. **`main.py`**: The primary script used to train the final model using all available data.
-2. **`final_test.py`**: A deployment script designed to run the trained model on a Jetson device for real-time inference.
-3. **`cross_validation.py`**: A script used to evaluate the dataset using K-Fold Cross-Validation to analyze differences in the dataset.
+This repository contains several Python scripts and YOLOv8 models to support:
 
----
+- **Dataset preparation and splitting**
+- **Model training and evaluation**
+- **Real-time inference using trained models**
 
-## **Files and Their Purpose**
+## Files and Their Purpose
 
-### **1. `main.py`**
-- **Purpose**: 
-  - This is the main script for building and training the final CNN model.
-  - It uses the entire dataset to train the model without splitting into validation or test sets.
-  - The trained model is saved as `final_model.pth` for deployment.
-- **Key Features**:
-  - Preprocessing pipeline includes resizing, grayscale conversion, and normalization.
-  - Uses MobileNetV2 with pre-trained weights for transfer learning.
-- **Output**:
-  - The trained model is saved as `final_model.pth`.
+### 1. `main.py`
+**Purpose**:  
+Main script to train the YOLO-based object detection model.
 
-### **2. `final_test.py`**
-- **Purpose**:
-  - This script is designed to deploy the trained model on a Jetson device for real-time inference.
-  - It loads the `final_model.pth` file and performs predictions on live camera input or test images.
-- **Key Features**:
-  - Optimized for deployment on Jetson devices.
-  - Includes real-time image capture and preprocessing.
-  - Displays predictions directly on the video feed or saves them for further analysis.
-
-### **3. `cross_validation.py`**
-- **Purpose**:
-  - This script performs K-Fold Cross-Validation on the dataset to evaluate the model's performance across different splits of the data.
-  - It helps identify differences in the dataset and ensures the model generalizes well.
-- **Key Features**:
-  - Splits the dataset into training and validation sets using K-Fold Cross-Validation.
-  - Logs metrics such as accuracy, precision, recall, and confusion matrices for each fold.
-  - Useful for analyzing dataset variability and model robustness.
+**Key Features**:
+- Trains a YOLOv8 model (`yolov8n.pt` or `yolov8s.pt`) on the prepared dataset.
+- Saves training results, including metrics and model weights, in the `runs/detect/train22` directory.
+- Configurable for different training parameters.
 
 ---
 
-## **Requirements**
+### 2. `final_test.py`
+**Purpose**:  
+Script for running trained models in a test setup for evaluation or demonstration.
 
-### **Python Version**
+**Key Features**:
+- Accepts images or live input to visualize screw detection results.
+- Loads the trained YOLO model and displays prediction bounding boxes.
+
+---
+
+### 3. `dataCollector.py`
+**Purpose**:  
+Utility to collect and save labeled data for training.
+
+**Key Features**:
+- Captures images and stores them in the dataset folder.
+- Can be customized to label and store new training samples.
+
+---
+
+### 4. `data_split.py`
+**Purpose**:  
+Splits the dataset into training and validation sets using an 80/20 split.
+
+**Key Features**:
+- Organizes images and labels into `train/val` directories under `datasets/screws/`.
+
+---
+
+### 5. `move.py`
+**Purpose**:  
+Utility script to manipulate or organize dataset files.
+
+**Key Features**:
+- Can be used to move images or labels between folders.
+
+---
+
+## Training and Evaluation
+
+### YOLO Training:
+- Training is performed using the `main.py` script with YOLOv8 (`yolov8n.pt`, `yolov8s.pt`) via the Ultralytics framework.
+
+### Evaluation:
+- After training, evaluation metrics such as confusion matrix, precision, and recall can be found under `runs/detect/train22`.
+
+---
+
+## Requirements
+
+### Python Version:
 - Python 3.8 or higher
 
-### **Required Libraries**
-Install the following libraries using `pip`:
+### Required Libraries:
+Install the following dependencies with pip:
+
 ```bash
-pip install torch torchvision matplotlib seaborn scikit-learn opencv-python
+pip install ultralytics opencv-python torch torchvision matplotlib
+```
